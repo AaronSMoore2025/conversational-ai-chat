@@ -2,7 +2,7 @@
 
 "use client"; // Mark this as a Client Component (it uses state and event handlers)
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // react-markdown converts a markdown STRING into real HTML elements.
 // The LLM often replies in markdown (**bold**, lists, `code`, headings), so
@@ -24,6 +24,16 @@ export default function Home() {
   // Holds the active request's AbortController so Stop can reach it. A ref (not
   // state) because we grab it imperatively and changing it shouldn't re-render.
   const abortControllerRef = useRef<AbortController | null>(null);
+  //a handle to an empty marker <div> at the very bottom of the message list
+  // it does't render anything with it - we just use it as a scroll targe
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  //After every render where messages or streamingText changed, scroll the
+  // market into view: Runs AFTER the DOM is painted, so the new content 
+  // actually exists to scroll to
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth"});
+  }, [messages, streamingText]);
 
   async function handleSend() {
     // Bail out on an empty message or if a reply is already streaming (prevents double-submits).
@@ -130,6 +140,8 @@ export default function Home() {
             </span>
           </div>
         )}
+
+        <div ref={bottomRef} /> 
       </div>
 
       {/* Input row: text box + Send/Stop button */}
