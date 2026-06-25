@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conversational AI Chat
 
-## Getting Started
+A learning project — a streaming chat UI built with Next.js, React, and a local LLM via Ollama.
 
-First, run the development server:
+## What it does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Send messages to a local `llama3.2` model running via [Ollama](https://ollama.com)
+- Replies stream in token by token (typewriter effect)
+- Full conversation history is sent with each request so the model has context
+- Stop button cancels a response mid-stream using `AbortController`
+- Markdown in responses renders properly (bold, code blocks, lists, etc.)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**`app/page.tsx`** — the entire frontend. A React client component that manages conversation state, sends messages to the API route, and reads the streaming response chunk by chunk using the browser's `ReadableStream` API.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**`app/api/chat/route.ts`** — a thin Next.js API route that receives the message history, forwards it to the local Ollama API with `stream: true`, and pipes the response straight back to the browser.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js 16](https://nextjs.org) — framework
+- [React 19](https://react.dev) — UI
+- [Tailwind CSS 4](https://tailwindcss.com) — styling
+- [react-markdown](https://github.com/remarkjs/react-markdown) — renders LLM markdown output
+- [Ollama](https://ollama.com) — runs the LLM locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Getting started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Install and run Ollama, then pull the model:
+   ```bash
+   ollama pull llama3.2
+   ```
 
-## Deploy on Vercel
+2. Install dependencies and start the dev server:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Open [http://localhost:3000](http://localhost:3000)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Concepts covered so far
+
+- Next.js App Router and API routes
+- React state (`useState`) and refs (`useRef`)
+- Streaming HTTP responses with `ReadableStream` and `TextDecoder`
+- NDJSON parsing (Ollama streams one JSON object per line)
+- `AbortController` for cancelling in-flight requests
+- Client vs. server components (`"use client"`)
